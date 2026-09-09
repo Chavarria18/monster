@@ -22,6 +22,7 @@ class MonsterController extends Controller
     public function create()
     {
         //
+        return view('monster.create');
     }
 
     /**
@@ -29,7 +30,21 @@ class MonsterController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+        'name'     => 'required|string|max:255',
+        'life'     => 'required|integer|min:1',
+        'atack'    => 'required|integer|min:0',
+        'defense'  => 'required|integer|min:0',
+        'velocity' => 'required|integer|min:0',
+        'image'    => 'nullable|image|max:2048', 
+        ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('monsters', 'public');
+        }
+
+        Monster::create($validated);
+        return redirect()->route('monster.index')->with('success', 'Monstruo creado con éxito.');
     }
 
     /**
@@ -45,7 +60,8 @@ class MonsterController extends Controller
      */
     public function edit(Monster $monster)
     {
-        //
+        return view('monster.edit', compact('monster'));
+
     }
 
     /**
@@ -53,7 +69,25 @@ class MonsterController extends Controller
      */
     public function update(Request $request, Monster $monster)
     {
-        //
+         $validated = $request->validate([
+        'name'     => 'required|string|max:255',
+        'life'     => 'required|integer|min:1',
+        'atack'    => 'required|integer|min:0',
+        'defense'  => 'required|integer|min:0',
+        'velocity' => 'required|integer|min:0',
+        'image'    => 'nullable|image|max:2048',
+    ]);
+
+    if ($request->hasFile('image')) {
+        $validated['image'] = $request->file('image')
+            ->store('monsters', 'public');
+    }
+
+    $monster->update($validated);
+
+    return redirect()
+        ->route('monster.index')
+        ->with('success', 'Monstruo actualizado con éxito.');
     }
 
     /**
@@ -63,4 +97,6 @@ class MonsterController extends Controller
     {
         //
     }
+
+    
 }
