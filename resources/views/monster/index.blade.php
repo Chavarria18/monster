@@ -20,8 +20,6 @@
         }
 
 
-
-
         .card footer {
             background-color: #5a3d24;
             color: white;
@@ -76,16 +74,41 @@
         .card:hover .image-container img {
             transform: scale(1.05);
         }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .action-buttons .tavern-btn {
+            margin: 0;
+        }
     </style>
 
 
-    <a class="tavern-nav__link @if(request()->is('create')) is-active @endif" href="/monster/create">Create</a>
-    <ul>
 
 
+
+    <form action="{{ route('combat.index') }}" method="GET" id="combat-form">
+        <div class="action-buttons">
+            <a href="/monster/create" class="tavern-btn">
+                ➕ Create
+            </a>
+
+            <button type="submit" class="tavern-btn">
+                ⚔️ Combat
+            </button>
+            <button type="button" id="clear-selection" class="tavern-btn">
+                🧹 Clear
+            </button>
+        </div>
         <div class="cards">
+
             @foreach ($monsters as $monster)
-                <article class="card">
+                <div class="card">
 
                     <div class="image-container">
                         <img src="{{ asset('storage/' . $monster->image) }}" alt="{{ $monster->name }}">
@@ -93,10 +116,10 @@
                         <div class="stats-overlay">
 
                             <ul>
-                                <p>❤️ Vida: {{ $monster->life }}</p>
-                                <p>⚔️ Ataque: {{ $monster->atack }}</p>
-                                <p>🛡️ Defensa: {{ $monster->defense }}</p>
-                                <p>💨 Velocidad: {{ $monster->velocity }}</p>
+                                <li>❤️ Vida: {{ $monster->life }}</li>
+                                <li>⚔️ Ataque: {{ $monster->atack }}</li>
+                                <li>🛡️ Defensa: {{ $monster->defense }}</li>
+                                <li>💨 Velocidad: {{ $monster->velocity }}</li>
                             </ul>
 
                         </div>
@@ -106,19 +129,90 @@
                         <a href="{{ route('monster.edit', $monster->id) }}" class="tavern-btn" title="Editar">
                             <i class="bi bi-pencil"></i>
                         </a>
+                        <input type="checkbox" class="monster-checkbox" value="{{ $monster->id }}">
 
                     </footer>
 
 
 
-                </article>
+                </div>
+
             @endforeach
-        </div>
+    </form>
+    </div>
+    {{ $monsters->links() }}
 
-
-
-
-
-
-    </ul>
 </x-app>
+
+<script>
+
+    //Almacenar id de otras paginas 
+    const STORAGE_KEY = 'selectedMonsters';
+
+    let selectedMonsters = JSON.parse(sessionStorage.getItem(STORAGE_KEY)) || [];
+
+    document.querySelectorAll('.monster-checkbox').forEach(checkbox => {
+
+        if (selectedMonsters.includes(checkbox.value)) {
+            checkbox.checked = true;
+        }
+
+        checkbox.addEventListener('change', function () {
+
+            if (this.checked) {
+
+
+                if (selectedMonsters.length >= 2) {
+                    this.checked = false;
+                    alert('You can only select 2 monsters.');
+                    return;
+                }
+
+                selectedMonsters.push(this.value);
+
+            } else {
+
+                selectedMonsters =
+                    selectedMonsters.filter(id => id !== this.value);
+            }
+
+            sessionStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(selectedMonsters)
+            );
+        });
+    });
+    //Enviar los ids 
+    document.getElementById('combat-form').addEventListener('submit', function (event) {
+
+        const selected =
+            JSON.parse(sessionStorage.getItem('selectedMonsters')) || [];
+
+        if (selected.length !== 2) {
+            event.preventDefault();
+            alert('Select exactly 2 monsters.');
+            return;
+        }
+
+        selected.forEach(id => {
+
+            const input = document.createElement('input');
+
+            input.type = 'hidden';
+            input.name = 'monsters[]';
+            input.value = id;
+
+            this.appendChild(input);
+        });
+    });
+    //Limpia la seleccion
+    document.getElementById('clear-selection').addEventListener('click', function () {
+        selectedMonsters = [];
+
+        sessionStorage.removeItem('selectedMonsters');
+
+        document.querySelectorAll('.monster-checkbox').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+    });
+</script>

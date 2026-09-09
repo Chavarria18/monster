@@ -11,10 +11,16 @@ class CombatController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($id1 = 1, $id2 = 2)
+    public function index(Request $request)
     {
 
-        $combats = Monster::findMany([$id1, $id2]);
+        $ids = $request->input('monsters', []);
+        if (count($ids) !== 2) {
+        
+            return back()->with('error', 'Select exactly 2 monsters.');
+        }
+
+        $combats = Monster::findMany($ids);
 
         return view('combat.index', compact('combats'));
     }
@@ -128,7 +134,7 @@ class CombatController extends Controller
         }
 
 
-
+        $this->saveHistory($monster1->id,$monster2->id,$winner->id); 
         return response()->json([
             'monster1' => $monster1->name,
             'monster1_life' => max(0, $monster1Life),
@@ -143,6 +149,23 @@ class CombatController extends Controller
 
              'fightLog' => $fightLog
         ]);
+    }
+
+    public function saveHistory($f1,$f2,$w){
+        $combat = new Combat(); 
+        $combat->fighter_1 = $f1;
+        $combat->fighter_2 = $f2;
+        $combat->winner = $w;
+        $combat->save();
+    }
+
+    public function history(){
+        $history = Combat::with([
+        'fighter1',
+        'fighter2',
+        'winnerMonster'
+    ])->paginate(10);
+        return view('history.index', compact('history'));
     }
 
 }

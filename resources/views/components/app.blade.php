@@ -15,11 +15,9 @@
         <div class="tavern-nav__plank">
             <ul class="tavern-nav__list">
                 <li><a class="tavern-nav__link @if(request()->is('monster')) is-active @endif"
-                        href="/monster">Monsters</a></li>
-                <li><a class="tavern-nav__link @if(request()->is('combat')) is-active @endif" href="/combat">Combat</a>
-                </li>
-                <li><a class="tavern-nav__link @if(request()->is('combat')) is-active @endif"
-                        href="/combat">Historial</a></li>
+                        href="/monster">Monsters</a></li>              
+                <li><a class="tavern-nav__link @if(request()->is('history')) is-active @endif"
+                        href="/history">Historial</a></li>
 
             </ul>
         </div>
