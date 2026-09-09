@@ -38,7 +38,7 @@
             overflow: hidden;
         }
 
-        .health-bar > div {
+        .health-bar>div {
             height: 100%;
             width: 100%;
             transition: width 0.3s ease;
@@ -87,6 +87,12 @@
             font-size: 18px;
             cursor: pointer;
         }
+
+        .loser {
+            filter: grayscale(100%);
+            opacity: 0.6;
+            transition: filter 0.5s ease, opacity 0.5s ease;
+        }
     </style>
 
     <x-slot:title>
@@ -95,7 +101,7 @@
 
     <div class="battle-arena">
 
-        <!-- Monster 1 - LEFT -->
+
         <div id="monster1" class="monster monster1">
 
             <h2 id="monster1-name">
@@ -106,15 +112,12 @@
                 <div id="monster1-health"></div>
             </div>
 
-            <img
-                src="{{ asset('storage/' . $combats[0]->image) }}"
-                alt="{{ $combats[0]->name }}"
-            >
+            <img src="{{ asset('storage/' . $combats[0]->image) }}" alt="{{ $combats[0]->name }}">
 
         </div>
 
 
-        <!-- Monster 2 - RIGHT -->
+
         <div id="monster2" class="monster monster2">
 
             <h2 id="monster2-name">
@@ -125,10 +128,7 @@
                 <div id="monster2-health"></div>
             </div>
 
-            <img
-                src="{{ asset('storage/' . $combats[1]->image) }}"
-                alt="{{ $combats[1]->name }}"
-            >
+            <img src="{{ asset('storage/' . $combats[1]->image) }}" alt="{{ $combats[1]->name }}">
 
         </div>
 
@@ -137,10 +137,7 @@
 
     <div id="battle-message"></div>
 
-    <button
-        class="fight-button"
-        onclick="startFight({{ $combats[0]->id }}, {{ $combats[1]->id }})"
-    >
+    <button class="fight-button" id="fight-button" onclick="startFight({{ $combats[0]->id }}, {{ $combats[1]->id }})">
         ⚔️ Start Fight
     </button>
 
@@ -151,54 +148,74 @@
 <script>
     async function startFight(id1, id2) {
 
-        const response = await fetch(`/fight/${id1}/${id2}`);
-        const fight = await response.json();
+        //Condiciones iniciales
+        document.getElementById("monster2").classList.remove("loser");
+        document.getElementById("monster1").classList.remove("loser");
 
-        for (const turn of fight.fightLog) {
+        document.getElementById("monster1-health").style.width = "100%";
+        document.getElementById("monster2-health").style.width = "100%";
 
-            const attacker = document.getElementById(
-                turn.attacker === 1 ? "monster1" : "monster2"
-            );
+        const fightButton = document.getElementById("fight-button");
 
-            const defender = document.getElementById(
-                turn.defender === 1 ? "monster1" : "monster2"
-            );
 
-              // Show damage
+        fightButton.disabled = true;
+        fightButton.textContent = "⚔️ Fighting...";
+
+        try {
+            const response = await fetch(`/fight/${id1}/${id2}`);
+            const fight = await response.json();
+
+            for (const turn of fight.fightLog) {
+
+                const attacker = document.getElementById(
+                    turn.attacker === 1 ? "monster1" : "monster2"
+                );
+
+                const defender = document.getElementById(
+                    turn.defender === 1 ? "monster1" : "monster2"
+                );
+
+                document.getElementById("battle-message").textContent =
+                    `${attacker.querySelector("h2").textContent} deals ${turn.damage} damage!`;
+
+                attacker.classList.add("attack");
+
+                await sleep(500);
+
+                attacker.classList.remove("attack");
+
+                defender.classList.add("hit");
+
+                await sleep(300);
+
+                defender.classList.remove("hit");
+
+                updateHealth(
+                    turn.monster1Life,
+                    turn.monster2Life,
+                    fight.monster1_initial_life,
+                    fight.monster2_initial_life
+                );
+
+                await sleep(1000);
+            }
+
             document.getElementById("battle-message").textContent =
-                `${attacker.querySelector("h2").textContent} deals ${turn.damage} damage!`;
+                `${fight.winner} wins!`;
 
-            // Attack animation
-            attacker.classList.add("attack");
 
-            await sleep(500);
+            if (fight.winner_id == id1) {
+                document.getElementById("monster2").classList.add("loser");
+            } else {
+                document.getElementById("monster1").classList.add("loser");
+            }
 
-            attacker.classList.remove("attack");
+        } finally {
 
-            // Hit animation
-            defender.classList.add("hit");
-
-            await sleep(300);
-
-            defender.classList.remove("hit");
-
-            // Update health
-            updateHealth(
-                turn.monster1Life,
-                turn.monster2Life,
-                fight.monster1_initial_life,
-                fight.monster2_initial_life
-            );
-
-          
-
-            await sleep(1000);
+            fightButton.disabled = false;
+            fightButton.textContent = "⚔️ Fight";
         }
-
-        document.getElementById("battle-message").textContent =
-            `${fight.winner} wins!`;
     }
-
 
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));

@@ -17,7 +17,7 @@
                 <li><a class="tavern-nav__link @if(request()->is('monster')) is-active @endif"
                         href="/monster">Monsters</a></li>              
                 <li><a class="tavern-nav__link @if(request()->is('history')) is-active @endif"
-                        href="/history">Historial</a></li>
+                        href="/history">History</a></li>
 
             </ul>
         </div>
@@ -114,7 +114,22 @@
             {{ $slot }}
         </main>
 
+         
+
+       
+
     </div>
+
+     <footer class="tutorial-box">
+            <h2>⚔️ How Combat Works</h2>
+
+            <ol>
+                <li>Select <strong>2 monsters</strong> using the checkboxes.</li>
+                <li>Click the <strong>⚔️ Combat</strong> button.</li>
+                <li>Watch the battle between the selected monsters.</li>
+                <li>Use <strong>🧹 Clear</strong> to choose different monsters.</li>
+            </ol>
+    </footer>
 
 </body>
 

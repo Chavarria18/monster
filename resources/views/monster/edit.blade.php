@@ -1,7 +1,7 @@
 <x-app>
 
     <x-slot:title>
-        Editar Monstruo
+        Edit monster
     </x-slot:title>
 
     <div class="container">

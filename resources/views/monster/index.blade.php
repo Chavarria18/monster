@@ -1,4 +1,5 @@
 <x-app>
+
     <x-slot:title>
         Monsters
     </x-slot:title>
@@ -89,58 +90,76 @@
     </style>
 
 
+    <div class="content-layout">
 
+        <div class="monsters-content">
 
+            <form action="{{ route('combat.index') }}" method="GET" id="combat-form">
 
-    <form action="{{ route('combat.index') }}" method="GET" id="combat-form">
-        <div class="action-buttons">
-            <a href="/monster/create" class="tavern-btn">
-                ➕ Create
-            </a>
+                <div class="action-buttons">
+                    <a href="/monster/create" class="tavern-btn">
+                        ➕ Create
+                    </a>
 
-            <button type="submit" class="tavern-btn">
-                ⚔️ Combat
-            </button>
-            <button type="button" id="clear-selection" class="tavern-btn">
-                🧹 Clear
-            </button>
-        </div>
-        <div class="cards">
+                    <button type="submit" class="tavern-btn">
+                        ⚔️ Combat
+                    </button>
 
-            @foreach ($monsters as $monster)
-                <div class="card">
+                    <button type="button" id="clear-selection" class="tavern-btn">
+                        🧹 Clear
+                    </button>
+                </div>
 
-                    <div class="image-container">
-                        <img src="{{ asset('storage/' . $monster->image) }}" alt="{{ $monster->name }}">
+                <div class="cards">
 
-                        <div class="stats-overlay">
+                    @foreach ($monsters as $monster)
+                        <div class="card">
 
-                            <ul>
-                                <li>❤️ Vida: {{ $monster->life }}</li>
-                                <li>⚔️ Ataque: {{ $monster->atack }}</li>
-                                <li>🛡️ Defensa: {{ $monster->defense }}</li>
-                                <li>💨 Velocidad: {{ $monster->velocity }}</li>
-                            </ul>
+                            <div class="image-container">
+                                @if ($monster->image && Storage::disk('public')->exists($monster->image))
+                                    <img src="{{ asset('storage/' . $monster->image) }}" alt="{{ $monster->name }}">
+                                @else
+                                    <div class="image-placeholder">
+                                        No image
+                                    </div>
+                                @endif
+
+                                <div class="stats-overlay">
+                                    <ul>
+                                        <li>❤️ Vida: {{ $monster->life }}</li>
+                                        <li>⚔️ Ataque: {{ $monster->atack }}</li>
+                                        <li>🛡️ Defensa: {{ $monster->defense }}</li>
+                                        <li>💨 Velocidad: {{ $monster->velocity }}</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <footer>
+                                {{ $monster->name }}
+
+                                <a href="{{ route('monster.edit', $monster->id) }}" class="tavern-btn" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <input type="checkbox" class="monster-checkbox" value="{{ $monster->id }}">
+                            </footer>
 
                         </div>
-                    </div>
-
-                    <footer>{{ $monster->name }}
-                        <a href="{{ route('monster.edit', $monster->id) }}" class="tavern-btn" title="Editar">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <input type="checkbox" class="monster-checkbox" value="{{ $monster->id }}">
-
-                    </footer>
-
-
+                    @endforeach
 
                 </div>
 
-            @endforeach
-    </form>
+            </form>
+
+            {{ $monsters->links() }}
+
+        </div>
+
+      
+
     </div>
-    {{ $monsters->links() }}
+
+
 
 </x-app>
 
@@ -215,4 +234,5 @@
             checkbox.checked = false;
         });
     });
+
 </script>

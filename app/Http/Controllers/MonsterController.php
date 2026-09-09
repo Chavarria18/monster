@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Monster;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MonsterController extends Controller
 {
@@ -12,8 +13,8 @@ class MonsterController extends Controller
      */
     public function index()
     {
-      $monsters = Monster::paginate(5);
-      return view('monster.index',compact('monsters'));
+        $monsters = Monster::paginate(5);
+        return view('monster.index', compact('monsters'));
     }
 
     /**
@@ -30,13 +31,15 @@ class MonsterController extends Controller
      */
     public function store(Request $request)
     {
+
+       
         $validated = $request->validate([
-        'name'     => 'required|string|max:255',
-        'life'     => 'required|integer|min:1',
-        'atack'    => 'required|integer|min:0',
-        'defense'  => 'required|integer|min:0',
-        'velocity' => 'required|integer|min:0',
-        'image'    => 'nullable|image|max:2048', 
+            'name' => 'required|string|max:255|unique:monsters,name',
+            'life' => 'required|integer|min:1',
+            'atack' => 'required|integer|min:0',
+            'defense' => 'required|integer|min:0',
+            'velocity' => 'required|integer|min:0',
+            'image' => 'nullable|image|max:2048',
         ]);
 
         if ($request->hasFile('image')) {
@@ -44,7 +47,7 @@ class MonsterController extends Controller
         }
 
         Monster::create($validated);
-        return redirect()->route('monster.index')->with('success', 'Monstruo creado con éxito.');
+        return redirect()->route('monster.index')->with('success', 'Monster successfully created');
     }
 
     /**
@@ -69,25 +72,25 @@ class MonsterController extends Controller
      */
     public function update(Request $request, Monster $monster)
     {
-         $validated = $request->validate([
-        'name'     => 'required|string|max:255',
-        'life'     => 'required|integer|min:1',
-        'atack'    => 'required|integer|min:0',
-        'defense'  => 'required|integer|min:0',
-        'velocity' => 'required|integer|min:0',
-        'image'    => 'nullable|image|max:2048',
-    ]);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'life' => 'required|integer|min:1',
+            'atack' => 'required|integer|min:0',
+            'defense' => 'required|integer|min:0',
+            'velocity' => 'required|integer|min:0',
+            'image' => 'nullable|image|max:2048',
+        ]);
 
-    if ($request->hasFile('image')) {
-        $validated['image'] = $request->file('image')
-            ->store('monsters', 'public');
-    }
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')
+                ->store('monsters', 'public');
+        }
 
-    $monster->update($validated);
+        $monster->update($validated);
 
-    return redirect()
-        ->route('monster.index')
-        ->with('success', 'Monstruo actualizado con éxito.');
+        return redirect()
+            ->route('monster.index')
+            ->with('success', 'Monster successfully updated.');
     }
 
     /**
@@ -95,8 +98,16 @@ class MonsterController extends Controller
      */
     public function destroy(Monster $monster)
     {
-        //
+        if ($monster->image) {
+            Storage::disk('public')->delete($monster->image);
+        }
+
+        $monster->delete();
+
+        return redirect()
+            ->route('monster.index')
+            ->with('success', 'Monster successfully deleted');
     }
 
-    
+
 }

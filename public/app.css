@@ -210,7 +210,7 @@ body::before {
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 720px;
+    max-width: 1000px;
     margin-top: 32px;
     padding: 50px 40px 70px;
     border: 2px solid rgba(43, 28, 18, 0.5);
@@ -568,3 +568,22 @@ nav[role="navigation"] span {
     display: inline-flex !important;
     margin: 0 2px;
 }
+
+.tutorial-box {
+ 
+
+    width: 100%;
+    margin-top: 100px;
+
+    
+
+    box-sizing: border-box;
+
+    background: #f5e6c8;
+    color: #3b2616;
+    border: 2px solid #5a3d24;
+   
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+

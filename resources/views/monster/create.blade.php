@@ -1,19 +1,11 @@
 <x-app>
     <x-slot:title>
-        Crear Monstruo
+        Create monster
     </x-slot:title>
 
 
 
-    @if ($errors->any())
-        <div class="parchment-errors">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+ 
     <div class="container">
 
         @include('monster.form', [

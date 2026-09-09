@@ -61,6 +61,9 @@
         }
     </style>
 
+    @include('history.podium', [
+        'topWinners' => $topWinners
+    ])
 
     <div class="history-container">
 
